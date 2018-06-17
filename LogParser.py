@@ -1,5 +1,4 @@
-#from enum import Enum
-#class state(Enum):
+
 #    client_init = 0
 #    client_stateless = 1
 #    client_handshake = 2
@@ -9,52 +8,57 @@
 import pandas as pd
 import pdfkit as pdf
 #from wkhtmltopdf import WKhtmlToPdf
-currstate = 0
-prevstate = 0
-transition=[[0,1,1,0],[1,0,0,0],[0,0,1,1],[0,0,0,1]]
-dict = {'Type: 2': 0, 'Type: 3': 1, 'Type: 4': 2, 'Type: 6': 3}
+
+
+transition=[[0,1,1,0,1],[1,0,0,0,0],[0,0,1,1,0],[0,0,0,1,0],[0,1,0,0,1]]
+dict = {'Type: 2': 0, 'Type: 3': 1, 'Type: 4': 2, 'Type: 6': 3,'Type: 5':4}
 dict_ngtcp2 = {'0x7f':0,'0x7e':1,'0x7d':2,'S0':3}
 print(transition)
-
 out=""
+
+picoquic_result ={"Version Negotiation":0,"Handshake":0,"Stateless Retry":0,"1-RTT":0}
+ngtcp2_result ={"Version Negotiation":0,"Handshake":0,"Stateless Retry":0,"1-RTT":0}
+
 def parse(line):
 	var=line.split("(")
 	var2=var[1].split(")")
-	#print(var2[0])
 	return var2[0]
 
-cLog=open("/Users/Shared/Jenkins/Home/workspace/picoquic/picoquic-client.log","r");
-result=open("result.txt","w");
-result.write("Picoquic\n")                                                          
-lines=cLog.readlines();
-for line in lines:
-	if(line[0:7] == "Sending"):
-		print(out)
-		out=""
-		out =out + "Sending: "
-	elif (line[0:9] == "Receiving"):
-		print(out)
-		out=""
-		out =out + "Receiving: "
-	elif(line.find("Type:") > -1):
-		out = out + line[4:12]
-		if(transition[currstate][int(dict[line[4:11]])] == 1):
-			print("state changed")
-			prevstate = currstate
-			currstate = int(dict[line[4:11]])
-			print(currstate)
-			if(prevstate == 2 and currstate == 3):
-				result.write("Handshake Complete\n")
-				result.write("1-RTT Stream Data")
-			if(prevstate == 0 and currstate == 1):
-				result.write("Stateless Retry\n")
-				
-		else:
-			print("error")
-		k=parse(line)
-		out = out+k
-	elif(line[0:9] == "Processed"):
-		print(parse(line))
+def parsepicoquic(implementation_name):
+	out=""
+	currstate = 0
+	prevstate = 0
+	cLog=open("./"+implementation_name+"/picoquic-client.log","r");                                                        
+	lines=cLog.readlines();
+	for line in lines:
+		if(line[0:7] == "Sending"):
+			print(out)
+			out=""
+			out =out + "Sending: "
+		elif (line[0:9] == "Receiving"):
+			print(out)
+			out=""
+			out =out + "Receiving: "
+		elif(line.find("Type:") > -1):
+			out = out + line[4:12]
+			if(transition[currstate][int(dict[line[4:11]])] == 1):
+				print("state changed")
+				prevstate = currstate
+				currstate = int(dict[line[4:11]])
+				print(currstate)
+				if(prevstate == 2 and currstate == 3):
+					picoquic_result["Handshake"] =1
+					picoquic_result["1-RTT"]=1
+				if(prevstate == 0 and currstate == 1):
+					picoquic_result["Stateless Retry"] =1
+					
+			else:
+				print("error")
+			k=parse(line)
+			out = out+k
+		elif(line[0:9] == "Processed"):
+			print(parse(line))
+
 def get5col(line):
 	var =line.split(" ")
 	if "0x7f" in var[5]:
@@ -66,10 +70,8 @@ def get5col(line):
 	if "S0" in var[5]:
 		return "S0"
 
-def parsengtcp2():
-	cLog = open("/Users/Shared/Jenkins/Home/workspace/picoquic/ngtcp2-client.log","r");
-	#cLog = open("/Users/Rashmi/Documents/workspace/sample/ngtcp2/ngtcp2-client.log","r");
-	result.write("Ngtcp2\n")
+def parsengtcp2(implementation_name):
+	cLog = open("./"+implementation_name+"/ngtcp2-client.log","r");
 	lines=cLog.readlines()
 	currstate = 0
 	prevstate = 0
@@ -83,24 +85,38 @@ def parsengtcp2():
 				currstate = int(dict_ngtcp2[get5col(line)])
 				print(currstate)
 				if(prevstate == 2 and currstate == 3):
-					result.write("Handshake Complete\n")
-					result.write("1-RTT Stream Data")
+					ngtcp2_result["Handshake"]=1
+					ngtcp2_result["1-RTT"]=1
 				if(prevstate == 0 and currstate == 1):
-					result.write("Stateless Retry\n")
-					
+					ngtcp2_result["Stateless Retry"]=1
 			else:
 				print("error")
 
+def color_zero_red(val):
+    color = 'red' if val is 0 else 'green'
+    return 'background-color: %s' % color
 
 def drawtable():
-	d = {'Handshake' : pd.Series([1,0],index=['picoquic','ngtcp2']),
-		'Statless Retry' :pd.Series([0,1],index=['picoquic','ngtcp2'])}
+	d = {'Picoquic' : pd.Series(picoquic_result),#,index=['Version Negotiation','Handshake','Stateless Retry','1-RTT Stream Data']),
+		'ngtcp2' : pd.Series(ngtcp2_result)}#	,index=['Version Negotiation','Handshake','Stateless Retry','1-RTT Stream Data'])}
 	df = pd.DataFrame(d)
-	df.to_html('result.html')
-	file = 'result.pdf'
-	#pdf.from_file('result.html', file)
+	temp = df.style.applymap(color_zero_red).set_caption('Picoquic as Server').render()
+	print(temp)
+	result=open("result.html","w");
+	result.write(temp)
+	result.close()
+	#df.to_html('result.html')
 
-parsengtcp2()
-drawtable()
+def mainloop():
+	number_of_implementations = 2
+	implementation_name =["picoquic","quicly"]
+	for i in range(0,number_of_implementations):
+		parsepicoquic(implementation_name[i])
+		parsengtcp2(implementation_name[i])
+		drawtable()
 
-result.close()
+	print("End of parsing")
+
+mainloop()
+
+

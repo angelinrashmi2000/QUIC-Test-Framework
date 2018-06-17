@@ -2,7 +2,7 @@ node('master') {
     stage ('QUIC Framework') {
     checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '8607f52e-a446-45e9-b4d1-02bc8ef0ab8b', url: 'https://github.com/angelinrashmi2000/QUIC-Test-Framework.git']]])
     }
-    
+
     stage ('picotls') {
     checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'SubmoduleOption', disableSubmodules: false, parentCredentials: true, recursiveSubmodules: true, reference: '', trackingSubmodules: false]], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '8607f52e-a446-45e9-b4d1-02bc8ef0ab8b', url: 'https://github.com/h2o/picotls.git']]])
     cmakeBuild 'InSearchPath'
@@ -46,7 +46,7 @@ node('master') {
         }
     }
     stage('Test'){
-        stage('Picoquic Test'){
+        stage('Picoquic as Server'){
             dir('../picoquic') {
                 sh './picoquicdemo -r -p 4444 &'
                 sh './picoquicdemo -r -l picoquic-client.log  localhost 4444'
@@ -75,8 +75,33 @@ node('master') {
                         echo "Error"
                     }
                 }
-            sleep time: 100, unit: 'MILLISECONDS'
-            sh 'kill $(lsof -t -i :4444)'
+                sleep time: 100, unit: 'MILLISECONDS'
+                sh 'kill $(lsof -t -i :4444)'
+            }
+        }
+        stage('quicky as Server')
+        {
+            dir('../quicly'){
+                sh './cli -c ./cert/cert.pem -k ./cert/key.pem 127.0.0.1 4444 &'
+                sh './cli -p /logo.jpg -v 127.0.0.1 4444 &> ../picoquic/quicly-client.log'
+                sh 'cat ../picoquic/quicly-client.log'
+                dir('../picoquic') {
+                    sh './picoquicdemo -r -l picoquic-client.log  localhost 4444'
+                    sh 'cat picoquic-client.log'
+                }
+            }
+        }
+        stage('mvfst as Server')
+        {
+            dir('../quicly')
+            {
+                sh './cli -p /99 -v fb.mvfst.net 4433 &> ../mvfst/quicly-client.log'
+                sh 'cat ../mvfst/quicly-client.log'
+            }
+            dir('../picoquic')
+            {
+                sh './picoquicdemo -r -l ../mvfst/picoquic-client.log  fb.mvfst.net 4433'
+                sh 'cat ../mvfst/picoquic-client.log'
             }
         }
     }

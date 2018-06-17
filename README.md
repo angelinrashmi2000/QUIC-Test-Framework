@@ -19,5 +19,5 @@ Follow the steps below to setup Jenkins server in your local machine
     - Workspace Cleanup Plugin
 4. To create a new job, select "New Item" and choose the project type as "Pipeline"
 5. In the Advanced Project Options, either select Pipeline script in the drop down and then copy&paste the JenskinsScript content 
-or, select pipeline script from SCM, fille the repository URL, credentials and also changes the Script Path from Jenkinsfile to JenkinsScript.
+or, select pipeline script from SCM, fill the repository URL, credentials and also change the Script Path from Jenkinsfile to JenkinsScript.
 6. To build the jenkins project click Build Now.  
