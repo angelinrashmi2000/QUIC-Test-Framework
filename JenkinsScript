@@ -1,6 +1,8 @@
 node('master') {
     stage ('QUIC Framework') {
-    checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '8607f52e-a446-45e9-b4d1-02bc8ef0ab8b', url: 'https://github.com/angelinrashmi2000/QUIC-Test-Framework.git']]])
+        dir('../framework'){
+            checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '8607f52e-a446-45e9-b4d1-02bc8ef0ab8b', url: 'https://github.com/angelinrashmi2000/QUIC-Test-Framework.git']]])
+        }
     }
 
     stage ('picotls') {
@@ -140,12 +142,9 @@ node('master') {
         }
     }
     stage('Log Analysis'){
-        stage('picoquic')
-        {
-            dir('../'){
+        dir('../framework'){
             sh '/usr/local/Cellar/python/3.6.4_3/bin/python LogParser.py'
-            sh 'cat result.txt'
-            }
+            sh 'cat result.html'
         }
     }
     publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: '/Users/Shared/Jenkins/Home/workspace', reportFiles: 'result.html', reportName: 'InterOperability Report', reportTitles: 'InterOperability Matrix'])
