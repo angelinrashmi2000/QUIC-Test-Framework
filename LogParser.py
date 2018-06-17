@@ -29,7 +29,7 @@ def parsepicoquic(implementation_name):
 	currstate = 0
 	prevstate = 0
 	try:
-    	cLog=open("../"+implementation_name+"/picoquic-client.log","r"); 
+		cLog=open("../"+implementation_name+"/picoquic-client.log","r"); 
 	except FileNotFoundError:
 		return                                                       
 	lines=cLog.readlines();
@@ -75,7 +75,7 @@ def get5col(line):
 
 def parsengtcp2(implementation_name):
 	try:
-    	cLog = open("../"+implementation_name+"/ngtcp2-client.log","r");
+		cLog = open("../"+implementation_name+"/ngtcp2-client.log","r");
 	except FileNotFoundError:
 		return
 	lines=cLog.readlines()
