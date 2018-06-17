@@ -82,26 +82,60 @@ node('master') {
         stage('quicky as Server')
         {
             dir('../quicly'){
-                sh './cli -c ./cert/cert.pem -k ./cert/key.pem 127.0.0.1 4444 &'
-                sh './cli -p /logo.jpg -v 127.0.0.1 4444 &> ../picoquic/quicly-client.log'
-                sh 'cat ../picoquic/quicly-client.log'
-                dir('../picoquic') {
-                    sh './picoquicdemo -r -l picoquic-client.log  localhost 4444'
-                    sh 'cat picoquic-client.log'
+                sh './cli -c ../picoquic/certs/cert.pem -k ../picoquic/certs/key.pem 127.0.0.1 4444 &'
+                try{
+                    timeout(time: 10, unit: 'SECONDS') {
+                            sh './cli -p /logo.jpg -v 127.0.0.1 4444 &> quicly-client.log'
+                             sh 'cat quicly-client.log'
+                    }
                 }
+                catch(err)
+                {
+                    echo "Error"
+                }
+                dir('../picoquic') {
+                    try{
+                        timeout(time: 10, unit: 'SECONDS') {
+                            sh './picoquicdemo -r -l ../quicly/picoquic-client.log  localhost 4444'
+                            sh 'cat ../quicly/picoquic-client.log'
+                    }
+                    }
+                    catch(err)
+                    {
+                        echo "Error"
+                    }
+                }
+                sleep time: 100, unit: 'MILLISECONDS'
+                sh 'kill $(lsof -t -i :4444)'
             }
         }
         stage('mvfst as Server')
         {
             dir('../quicly')
             {
-                sh './cli -p /99 -v fb.mvfst.net 4433 &> ../mvfst/quicly-client.log'
-                sh 'cat ../mvfst/quicly-client.log'
+                try{
+                    timeout(time: 10, unit: 'SECONDS') {
+                        sh './cli -p /99 -v fb.mvfst.net 4433 &> ../mvfst/quicly-client.log'
+                        sh 'cat ../mvfst/quicly-client.log'
+                    }
+                }
+                catch(err)
+                {
+                        echo "Error"
+                }
             }
             dir('../picoquic')
             {
-                sh './picoquicdemo -r -l ../mvfst/picoquic-client.log  fb.mvfst.net 4433'
-                sh 'cat ../mvfst/picoquic-client.log'
+                try{
+                    timeout(time: 10, unit: 'SECONDS') {
+                        sh './picoquicdemo -r -l ../mvfst/picoquic-client.log  fb.mvfst.net 4433'
+                        sh 'cat ../mvfst/picoquic-client.log'
+                    }
+                }
+                catch(err)
+                {
+                    echo "Error"
+                }
             }
         }
     }
