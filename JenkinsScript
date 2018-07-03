@@ -113,6 +113,7 @@ node('master') {
         }
         stage('mvfst as Server')
         {
+            sh  'mkdir ../mvfst'
             dir('../quicly')
             {
                 try{
@@ -140,6 +141,66 @@ node('master') {
                 }
             }
         }
+        stage('winquic as Server')
+        {
+            sh  'mkdir ../winquic'
+            dir('../quicly')
+            {
+                try{
+                    timeout(time: 10, unit: 'SECONDS') {
+                        sh './cli -p /99 -v msquic.westus.cloudapp.azure.com 4433 &> ../winquic/quicly-client.log'
+                        sh 'cat ../winquic/quicly-client.log'
+                    }
+                }
+                catch(err)
+                {
+                        echo "Error"
+                }
+            }
+            dir('../picoquic')
+            {
+                try{
+                    timeout(time: 10, unit: 'SECONDS') {
+                        sh './picoquicdemo -r -l ../winquic/picoquic-client.log  msquic.westus.cloudapp.azure.com 4433'
+                        sh 'cat ../winquic/picoquic-client.log'
+                    }
+                }
+                catch(err)
+                {
+                    echo "Error"
+                }
+            }
+        }
+        stage('ngx_quic as Server')
+        {
+            sh  'mkdir ../ngx_quic'
+            dir('../quicly')
+            {
+                try{
+                    timeout(time: 10, unit: 'SECONDS') {
+                        sh './cli -p /99 -v quic.tech 4433 &> ../ngx_quic/quicly-client.log'
+                        sh 'cat ../ngx_quic/quicly-client.log'
+                    }
+                }
+                catch(err)
+                {
+                        echo "Error"
+                }
+            }
+            dir('../picoquic')
+            {
+                try{
+                    timeout(time: 10, unit: 'SECONDS') {
+                        sh './picoquicdemo -r -l ../ngx_quic/picoquic-client.log  quic.tech 4433'
+                        sh 'cat ../ngx_quic/picoquic-client.log'
+                    }
+                }
+                catch(err)
+                {
+                    echo "Error"
+                }
+            }
+        }
     }
     stage('Log Analysis'){
         dir('../framework'){
@@ -147,5 +208,5 @@ node('master') {
             sh 'cat result.html'
         }
     }
-    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: '/Users/Shared/Jenkins/Home/workspace', reportFiles: 'result.html', reportName: 'InterOperability Report', reportTitles: 'InterOperability Matrix'])
+    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: '/Users/Shared/Jenkins/Home/workspace/framework', reportFiles: 'result.html', reportName: 'InterOperability Report', reportTitles: 'InterOperability Matrix'])
 }
