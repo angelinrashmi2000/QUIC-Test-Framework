@@ -84,7 +84,7 @@ node('master') {
         stage('ngtcp2 as Server'){
             dir('../ngtcp2') {
                 sh './examples/server 127.0.0.1 4444 ../picoquic/certs/key.pem ../picoquic/certs/cert.pem  &'
-                sh './examples/client 127.0.0.1 4444  -d /index.html &> ../ngtcp2/ngtcp2-client.log'
+                sh './examples/client 127.0.0.1 4444  &> ../ngtcp2/ngtcp2-client.log'
                 sh 'cat ../ngtcp2/ngtcp2-client.log'
                 dir('../quicly'){
                     try{
