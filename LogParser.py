@@ -117,7 +117,7 @@ def parsequicly(implementation_name):
 	except FileNotFoundError:
 		lines=cLog.readlines()
 		for line in lines:
-			if(line.find("handshake complete") >= -1 )
+			if line.find("handshake complete") >= -1 :
 				quicly_result["Handshake"]=1
 
 def color_zero_red(val):
