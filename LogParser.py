@@ -18,6 +18,7 @@ out=""
 
 picoquic_result ={"Version Negotiation":0,"Handshake":0,"Stateless Retry":0,"1-RTT":0}
 ngtcp2_result ={"Version Negotiation":0,"Handshake":0,"Stateless Retry":0,"1-RTT":0}
+quicly_result ={"Version Negotiation":0,"Handshake":0,"Stateless Retry":0,"1-RTT":0}
 
 def parse(line):
 	var=line.split("(")
@@ -28,6 +29,10 @@ def parsepicoquic(implementation_name):
 	out=""
 	currstate = 0
 	prevstate = 0
+	picoquic_result["Version Negotiation"] =0
+	picoquic_result["Handshake"]=0
+	picoquic_result["Stateless Retry"]=0
+	picoquic_result["1-RTT"]=0
 	try:
 		cLog=open("../"+implementation_name+"/picoquic-client.log","r"); 
 	except FileNotFoundError:
@@ -79,6 +84,10 @@ def parsengtcp2(implementation_name):
 	except FileNotFoundError:
 		return
 	lines=cLog.readlines()
+	ngtcp2_result["Version Negotiation"] =0
+	ngtcp2_result["Handshake"]=0
+	ngtcp2_result["Stateless Retry"]=0
+	ngtcp2_result["1-RTT"]=0
 	currstate = 0
 	prevstate = 0
 	prevpkt = -1
@@ -98,13 +107,27 @@ def parsengtcp2(implementation_name):
 			else:
 				print("error")
 
+def parsequicly(implementation_name):
+	quicly_result["Version Negotiation"] =0
+	quiclu_result["Handshake"]=0
+	quicly_result["Stateless Retry"]=0
+	quicly_result["1-RTT"]=0
+	try:
+		cLog = open("../"+implementation_name+"/quicly-client.log","r")
+	except FileNotFoundError:
+		lines=cLog.readlines()
+		for line in lines:
+			if(line.find("handshake complete") >= -1 )
+				quicly_result["Handshake"]=1
+
 def color_zero_red(val):
     color = 'red' if val is 0 else 'green'
     return 'background-color: %s' % color
 
 def drawtable(implementation_name):
 	d = {'Picoquic' : pd.Series(picoquic_result),#,index=['Version Negotiation','Handshake','Stateless Retry','1-RTT Stream Data']),
-		'ngtcp2' : pd.Series(ngtcp2_result)}
+		'ngtcp2' : pd.Series(ngtcp2_result),
+		'quicly' : pd.Series(quicly_result)}
 	df = pd.DataFrame(d)
 	temp = df.style.applymap(color_zero_red).set_caption(implementation_name+' as Server').render()
 	print(temp)
@@ -119,8 +142,8 @@ def mainloop():
 	for i in range(0,number_of_implementations):
 		parsepicoquic(implementation_name[i])
 		parsengtcp2(implementation_name[i])
+		parsequicly(implementation_name[i])
 		drawtable(implementation_name[i])
-
 	print("End of parsing")
 
 mainloop()

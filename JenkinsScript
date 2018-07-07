@@ -117,7 +117,7 @@ node('master') {
         stage('quicky as Server')
         {
             dir('../quicly'){
-                sh './cli -c ../picoquic/certs/cert.pem -k ../picoquic/certs/key.pem 127.0.0.1 4444 &'
+                sh './cli -c ../picoquic/certs/cert.pem -k ../picoquic/certs/key.pem -v 127.0.0.1 4444 &'
                 try{
                     timeout(time: 10, unit: 'SECONDS') {
                             sh './cli -p /logo.jpg -v 127.0.0.1 4444 &> quicly-client.log'
@@ -131,7 +131,7 @@ node('master') {
                 dir('../picoquic') {
                     try{
                         timeout(time: 10, unit: 'SECONDS') {
-                            sh './picoquicdemo -r -l ../quicly/picoquic-client.log  localhost 4444'
+                            sh './picoquicdemo -r -l ../quicly/picoquic-client.log  127.0.0.1 4444'
                             sh 'cat ../quicly/picoquic-client.log'
                     }
                     }
