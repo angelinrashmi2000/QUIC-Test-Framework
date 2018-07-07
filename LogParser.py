@@ -131,13 +131,13 @@ def drawtable(implementation_name):
 	df = pd.DataFrame(d)
 	temp = df.style.applymap(color_zero_red).set_caption(implementation_name+' as Server').render()
 	print(temp)
-	result=open("result.html","w");
+	result=open("result.html","a");
 	result.write(temp)
 	result.close()
 	#df.to_html('result.html')
 
 def mainloop():
-	number_of_implementations = 2
+	number_of_implementations = 5
 	implementation_name =["picoquic","quicly","mvfst","winquic","ngx_quic"]
 	for i in range(0,number_of_implementations):
 		parsepicoquic(implementation_name[i])
