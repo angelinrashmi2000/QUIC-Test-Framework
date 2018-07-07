@@ -10,9 +10,9 @@ import pdfkit as pdf
 #from wkhtmltopdf import WKhtmlToPdf
 
 
-transition=[[0,1,1,0,1],[1,0,0,0,0],[0,0,1,1,0],[0,0,0,1,0],[0,1,0,0,1]]
-dict = {'Type: 2': 0, 'Type: 3': 1, 'Type: 4': 2, 'Type: 6': 3,'Type: 5':4}
-dict_ngtcp2 = {'0x7f':0,'0x7e':1,'0x7d':2,'S0':3}
+transition=[[0,1,1,0,1,0],[1,0,0,0,0,0],[0,0,1,1,0,0],[0,0,0,1,0,0],[0,1,0,0,1,0],[0,0,0,0,0,0]] #currently the transition is all zero change it later
+dict = {'Type: 2': 0, 'Type: 3': 1, 'Type: 4': 2, 'Type: 6': 3,'Type: 5':4,'Type: 1':5} #type 1 version negotation
+dict_ngtcp2 = {'0x7f':0,'0x7e':1,'0x7d':2,'S0':3} #(initial,retry,handshake,0x7C=0-RTT)
 print(transition)
 out=""
 
