@@ -50,8 +50,8 @@ node('master') {
     stage('Test'){  
         stage('Picoquic as Server'){
             dir('../picoquic') {
-                sh './picoquicdemo -r -p 4444 &'
-                sh './picoquicdemo -r -l picoquic-client.log  localhost 4444'
+                sh './picoquicdemo -p 4444 &'
+                sh './picoquicdemo -l picoquic-client.log  localhost 4444'
                 sh 'cat picoquic-client.log'
                  dir('../quicly'){
                     try{
@@ -131,7 +131,7 @@ node('master') {
                 dir('../picoquic') {
                     try{
                         timeout(time: 10, unit: 'SECONDS') {
-                            sh './picoquicdemo -r -l ../quicly/picoquic-client.log  127.0.0.1 4444'
+                            sh './picoquicdemo -l ../quicly/picoquic-client.log  127.0.0.1 4444'
                             sh 'cat ../quicly/picoquic-client.log'
                     }
                     }
@@ -176,7 +176,7 @@ node('master') {
             {
                 try{
                     timeout(time: 10, unit: 'SECONDS') {
-                        sh './picoquicdemo -r -l ../mvfst/picoquic-client.log  fb.mvfst.net 4433'
+                        sh './picoquicdemo -l ../mvfst/picoquic-client.log  fb.mvfst.net 4433'
                         sh 'cat ../mvfst/picoquic-client.log'
                     }
                 }
@@ -218,7 +218,7 @@ node('master') {
             {
                 try{
                     timeout(time: 10, unit: 'SECONDS') {
-                        sh './picoquicdemo -r -l ../winquic/picoquic-client.log  msquic.westus.cloudapp.azure.com 4433'
+                        sh './picoquicdemo -l ../winquic/picoquic-client.log  msquic.westus.cloudapp.azure.com 4433'
                         sh 'cat ../winquic/picoquic-client.log'
                     }
                 }
@@ -260,7 +260,7 @@ node('master') {
             {
                 try{
                     timeout(time: 10, unit: 'SECONDS') {
-                        sh './picoquicdemo -r -l ../ngx_quic/picoquic-client.log  quic.tech 4433'
+                        sh './picoquicdemo -l ../ngx_quic/picoquic-client.log  quic.tech 4433'
                         sh 'cat ../ngx_quic/picoquic-client.log'
                     }
                 }
