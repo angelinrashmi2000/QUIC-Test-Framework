@@ -47,7 +47,7 @@ node('master') {
         sh 'make'
         }
     }
-    stage('Test'){
+    stage('Test'){  
         stage('Picoquic as Server'){
             dir('../picoquic') {
                 sh './picoquicdemo -r -p 4444 &'
@@ -68,8 +68,41 @@ node('master') {
                 dir('../ngtcp2'){
                     try{
                     timeout(time: 10, unit: 'SECONDS') {
-                        sh './examples/client 127.0.0.1 4444 --session-file /Users/Rashmi/Documents/workspace/sample/ngtcp2/sess.txt --tp-file /Users/Rashmi/Documents/workspace/sample/ngtcp2/tp.txt -d ../picoquic/http09_index.html &> ../picoquic/ngtcp2-client.log'
+                        sh './examples/client 127.0.0.1 4444 -d ../picoquic/http09_index.html &> ../picoquic/ngtcp2-client.log'
                         sh 'cat ../picoquic/ngtcp2-client.log'
+                    }
+                    }
+                    catch(err)
+                    {
+                        echo "Error"
+                    }
+                }
+                sleep time: 100, unit: 'MILLISECONDS'
+                sh 'kill $(lsof -t -i :4444)'
+            }
+        }
+        stage('ngtcp2 as Server'){
+            dir('../ngtcp2') {
+                sh './examples/server 127.0.0.1 4444 &'
+                sh './examples/client 127.0.0.1 4444  -d /index.html &> ../ngtcp2c/ngtcp2-client.log'
+                sh 'cat ../ngtcp2/ngtcp2-client.log'
+                dir('../quicly'){
+                    try{
+                    timeout(time: 2, unit: 'SECONDS') {
+                        sh './cli -p /logo.jpg -v 127.0.0.1 4444 &> ../ngtcp2/quicly-client.log'
+                        sh 'cat ../ngtcp2/quicly-client.log'
+                    }
+                    }
+                    catch(err)
+                    {
+                        echo "Error"
+                    }
+                }
+                dir('../picoquic') {
+                    try{
+                        timeout(time: 10, unit: 'SECONDS') {
+                            sh './picoquicdemo -r -l ../ngtcp2/picoquic-client.log  localhost 4444'
+                            sh 'cat ../ngtcp2/picoquic-client.log'
                     }
                     }
                     catch(err)
@@ -100,6 +133,18 @@ node('master') {
                         timeout(time: 10, unit: 'SECONDS') {
                             sh './picoquicdemo -r -l ../quicly/picoquic-client.log  localhost 4444'
                             sh 'cat ../quicly/picoquic-client.log'
+                    }
+                    }
+                    catch(err)
+                    {
+                        echo "Error"
+                    }
+                }
+                dir('../ngtcp2'){
+                    try{
+                    timeout(time: 10, unit: 'SECONDS') {
+                        sh './examples/client 127.0.0.1 4444 -d /logo.jpg &> ../quicly/ngtcp2-client.log'
+                        sh 'cat ../quicly/ngtcp2-client.log'
                     }
                     }
                     catch(err)
@@ -140,6 +185,18 @@ node('master') {
                     echo "Error"
                 }
             }
+            dir('../ngtcp2'){
+                    try{
+                    timeout(time: 10, unit: 'SECONDS') {
+                        sh './examples/client fb.mvfst.net 4433 -d ../picoquic/http09_index.html &> ../mvfst/ngtcp2-client.log'
+                        sh 'cat ../mvfst/ngtcp2-client.log'
+                    }
+                    }
+                    catch(err)
+                    {
+                        echo "Error"
+                    }
+                }
         }
         stage('winquic as Server')
         {
@@ -170,6 +227,18 @@ node('master') {
                     echo "Error"
                 }
             }
+            dir('../ngtcp2'){
+                    try{
+                    timeout(time: 10, unit: 'SECONDS') {
+                        sh './examples/client msquic.westus.cloudapp.azure.com 4433 -d ../picoquic/http09_index.html &> ../winquic/ngtcp2-client.log'
+                        sh 'cat ../winquic/ngtcp2-client.log'
+                    }
+                    }
+                    catch(err)
+                    {
+                        echo "Error"
+                    }
+                }
         }
         stage('ngx_quic as Server')
         {

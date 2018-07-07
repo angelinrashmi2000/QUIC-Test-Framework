@@ -102,11 +102,11 @@ def color_zero_red(val):
     color = 'red' if val is 0 else 'green'
     return 'background-color: %s' % color
 
-def drawtable():
+def drawtable(implementation_name):
 	d = {'Picoquic' : pd.Series(picoquic_result),#,index=['Version Negotiation','Handshake','Stateless Retry','1-RTT Stream Data']),
-		'ngtcp2' : pd.Series(ngtcp2_result)}#	,index=['Version Negotiation','Handshake','Stateless Retry','1-RTT Stream Data'])}
+		'ngtcp2' : pd.Series(ngtcp2_result)}
 	df = pd.DataFrame(d)
-	temp = df.style.applymap(color_zero_red).set_caption('Picoquic as Server').render()
+	temp = df.style.applymap(color_zero_red).set_caption(implementation_name+' as Server').render()
 	print(temp)
 	result=open("result.html","w");
 	result.write(temp)
@@ -115,11 +115,11 @@ def drawtable():
 
 def mainloop():
 	number_of_implementations = 2
-	implementation_name =["picoquic","quicly"]
+	implementation_name =["picoquic","quicly","mvfst","winquic","ngx_quic"]
 	for i in range(0,number_of_implementations):
 		parsepicoquic(implementation_name[i])
 		parsengtcp2(implementation_name[i])
-		drawtable()
+		drawtable(implementation_name[i])
 
 	print("End of parsing")
 
