@@ -158,6 +158,7 @@ node('master') {
         }
         stage('mvfst as Server')
         {
+            sh  'rm -rf ../mvfst'
             sh  'mkdir ../mvfst'
             dir('../quicly')
             {
@@ -200,6 +201,7 @@ node('master') {
         }
         stage('winquic as Server')
         {
+            sh 'rm -rf ../winquic'
             sh  'mkdir ../winquic'
             dir('../quicly')
             {
@@ -242,6 +244,7 @@ node('master') {
         }
         stage('ngx_quic as Server')
         {
+            sh 'rm -rf ../ngx_quic'
             sh  'mkdir ../ngx_quic'
             dir('../quicly')
             {
