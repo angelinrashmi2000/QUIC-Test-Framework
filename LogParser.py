@@ -109,7 +109,7 @@ def parsengtcp2(implementation_name):
 
 def parsequicly(implementation_name):
 	quicly_result["Version Negotiation"] =0
-	quiclu_result["Handshake"]=0
+	quicly_result["Handshake"]=0
 	quicly_result["Stateless Retry"]=0
 	quicly_result["1-RTT"]=0
 	try:
