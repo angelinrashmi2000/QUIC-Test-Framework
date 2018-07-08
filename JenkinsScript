@@ -6,9 +6,11 @@ node('master') {
     }
 
     stage ('picotls') {
-    checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'SubmoduleOption', disableSubmodules: false, parentCredentials: true, recursiveSubmodules: true, reference: '', trackingSubmodules: false]], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '8607f52e-a446-45e9-b4d1-02bc8ef0ab8b', url: 'https://github.com/h2o/picotls.git']]])
-    cmakeBuild 'InSearchPath'
-    sh 'make'
+        dir('../picotls'){
+            checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'SubmoduleOption', disableSubmodules: false, parentCredentials: true, recursiveSubmodules: true, reference: '', trackingSubmodules: false]], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '8607f52e-a446-45e9-b4d1-02bc8ef0ab8b', url: 'https://github.com/h2o/picotls.git']]])
+            cmakeBuild 'InSearchPath'
+            sh 'make'
+        }
     }
     stage('picoquic') {
         dir('../picoquic'){
