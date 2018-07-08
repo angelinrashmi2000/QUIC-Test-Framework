@@ -24,13 +24,6 @@ node('master') {
         sh 'make'
         }
     }
-    stage('mozquic') {
-        checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'SubmoduleOption', disableSubmodules: false, parentCredentials: true, recursiveSubmodules: true, reference: '', trackingSubmodules: false]], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '8607f52e-a446-45e9-b4d1-02bc8ef0ab8b', url: 'https://github.com/mcmanus/mozquic.git']]])
-        //checkout([$class: 'GitSCM', branches: [[name: '*/NSS_3_36_BRANCH']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'SubmoduleOption', disableSubmodules: false, parentCredentials: true, recursiveSubmodules: true, reference: '', trackingSubmodules: false]], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '8607f52e-a446-45e9-b4d1-02bc8ef0ab8b', url: 'https://github.com/nss-dev/nss.git']]])
-        //checkout([$class: 'MercurialSCM', credentialsId: '8607f52e-a446-45e9-b4d1-02bc8ef0ab8b', source: 'https://hg.mozilla.org/projects/nspr'])
-        //sh 'nss/build.sh'
-        //sh 'make'
-    }
     stage('ngtcp2') {
         dir('../openssl')
         {
@@ -40,7 +33,6 @@ node('master') {
             sh 'make install_sw'
         }
         dir('../ngtcp2'){
-        sh 'echo $PATH'
         checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'SubmoduleOption', disableSubmodules: false, parentCredentials: true, recursiveSubmodules: true, reference: '', trackingSubmodules: false]], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '8607f52e-a446-45e9-b4d1-02bc8ef0ab8b', url: 'https://github.com/ngtcp2/ngtcp2']]])
         sh 'autoreconf -i'
         sh './configure PKG_CONFIG_PATH=$PWD/../openssl/build/lib/pkgconfig LDFLAGS="-Wl,-rpath,$PWD/../openssl/build/lib,-L/opt/local/lib" CPPFLAGS="-I/opt/local/include"'
@@ -292,5 +284,5 @@ node('master') {
             sh 'cat result.html'
         }
     }
-    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: '/Users/Shared/Jenkins/Home/workspace/framework', reportFiles: 'result.html', reportName: 'InterOperability Report', reportTitles: 'InterOperability Matrix'])
+    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, includes: '**/*.log,**/*.html', keepAll: false, reportDir: '/Users/Shared/Jenkins/Home/workspace/', reportFiles: 'result.html', reportName: 'InterOperability Report', reportTitles: 'InterOperability Matrix'])
 }
