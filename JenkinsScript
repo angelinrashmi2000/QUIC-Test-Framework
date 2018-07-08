@@ -250,7 +250,7 @@ node('master') {
             {
                 try{
                     timeout(time: 10, unit: 'SECONDS') {
-                        sh './cli -p /99 -v quic.tech 4433 &> ../ngx_quic/quicly-client.log'
+                        sh './cli -v quic.tech 4433 &> ../ngx_quic/quicly-client.log'
                         sh 'cat ../ngx_quic/quicly-client.log'
                     }
                 }
@@ -275,7 +275,7 @@ node('master') {
             dir('../ngtcp2'){
                 try{
                     timeout(time: 10, unit: 'SECONDS') {
-                        sh './examples/client msquic.westus.cloudapp.azure.com 4433 &> ../ngx_quic/ngtcp2-client.log'
+                        sh './examples/client quic.tech 4433 &> ../ngx_quic/ngtcp2-client.log'
                         sh 'cat ../ngx_quic/ngtcp2-client.log'
                     }
                 }

@@ -7,14 +7,16 @@
 #    client_close = 5
 import pandas as pd
 import pdfkit as pdf
+from IPython.display import HTML
 #from wkhtmltopdf import WKhtmlToPdf
 
 
 transition=[[0,1,1,0,1,0,0],[1,0,0,0,0,0,0],[0,0,1,1,0,0,0],[0,0,0,1,0,0,0],[0,1,0,0,1,0,0],[1,0,0,0,0,0,0],[0,0,0,0,0,0,0]] #currently the transition for Typ1 and type 0 is all zero.change it later
-dict = {'Type: 2': 0, 'Type: 3': 1, 'Type: 4': 2, 'Type: 6': 3,'Type: 5':4,'Type: 1':5,'Type: 0' :6} #(initial, retry, handshake, 1rtt, 0RTT,version,error)#type 1 version negotation
+dict_picoquic = {'Type: 2': 0, 'Type: 3': 1, 'Type: 4': 2, 'Type: 6': 3,'Type: 5':4,'Type: 1':5,'Type: 0' :6} #(initial, retry, handshake, 1rtt, 0RTT,version,error)#type 1 version negotation
 dict_ngtcp2 = {'0x7f':0,'0x7e':1,'0x7d':2,'S0':3} #(initial,retry,handshake,1RTT,0x7C=0-RTT)
 print(transition)
 out=""
+result=open("result.html","w");
 
 picoquic_result ={"Version Negotiation":0,"Handshake":0,"Stateless Retry":0,"1-RTT":0}
 ngtcp2_result ={"Version Negotiation":0,"Handshake":0,"Stateless Retry":0,"1-RTT":0}
@@ -49,10 +51,10 @@ def parsepicoquic(implementation_name):
 			out =out + "Receiving: "
 		elif(line.find("Type:") > -1):
 			out = out + line[4:12]
-			if(transition[currstate][int(dict[line[4:11]])] == 1):
+			if(transition[currstate][int(dict_picoquic[line[4:11]])] == 1):
 				print("state changed")
 				prevstate = currstate
-				currstate = int(dict[line[4:11]])
+				currstate = int(dict_picoquic[line[4:11]])
 				print(currstate)
 				if(prevstate == 2 and currstate == 3):
 					picoquic_result["Handshake"] =1
@@ -127,26 +129,26 @@ def color_zero_red(val):
     color = 'red' if val is 0 else 'green'
     return 'background-color: %s' % color
 
-def drawtable(implementation_name):
-	d = {'picoquic' : pd.Series(picoquic_result),#,index=['Version Negotiation','Handshake','Stateless Retry','1-RTT Stream Data']),
+def drawtable(implementation_name,result):
+	d = {'picoquic' : pd.Series(picoquic_result), # index=['Version Negotiation','Handshake','Stateless Retry','1-RTT Stream Data']
 		'ngtcp2' : pd.Series(ngtcp2_result),
 		'quicly' : pd.Series(quicly_result)}
 	df = pd.DataFrame(d)
-	temp = df.style.applymap(color_zero_red).set_caption(implementation_name+' as Server').render()
-	#print(temp)
-	result=open("result.html","a");
+	styles = [ dict(selector="th", props=[("text-align", "center")]),dict(selector="", props=[("margin", "50px"),("display","inline-block")]) ]
+	temp = df.style.applymap(color_zero_red).set_caption(implementation_name+' as Server').set_properties(**{'border': '2px solid black'}).set_table_styles(styles).render()
+	#print(temp)	
 	result.write(temp)
-	result.close()
 	#df.to_html('result.html')
 
-def mainloop():
+def mainloop(result):
 	number_of_implementations = 5
 	implementation_name =["picoquic","quicly","mvfst","winquic","ngx_quic"]
 	for i in range(0,number_of_implementations):
 		parsepicoquic(implementation_name[i])
 		parsengtcp2(implementation_name[i])
 		parsequicly(implementation_name[i])
-		drawtable(implementation_name[i])
+		drawtable(implementation_name[i],result)
 	print("End of parsing")
 
-mainloop()
+mainloop(result)
+result.close()
