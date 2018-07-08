@@ -1,12 +1,12 @@
 node('master') {
     stage ('QUIC Framework') {
-        dir('../framework'){
+        dir('./framework'){
             checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '8607f52e-a446-45e9-b4d1-02bc8ef0ab8b', url: 'https://github.com/angelinrashmi2000/QUIC-Test-Framework.git']]])
         }
     }
 
     stage ('picotls') {
-        dir('../openssl')
+        dir('./openssl')
         {
             checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'CloneOption', noTags: false, reference: '', shallow: false]], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '8607f52e-a446-45e9-b4d1-02bc8ef0ab8b', url: 'https://github.com/openssl/openssl']]])
             sh './config enable-tls1_3 --prefix=$PWD/build'
@@ -20,21 +20,21 @@ node('master') {
         }
     }
     stage('picoquic') {
-        dir('../picoquic'){
+        dir('./picoquic'){
         checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'SubmoduleOption', disableSubmodules: false, parentCredentials: true, recursiveSubmodules: true, reference: '', trackingSubmodules: false]], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '8607f52e-a446-45e9-b4d1-02bc8ef0ab8b', url: 'https://github.com/private-octopus/picoquic.git']]])
         cmakeBuild 'InSearchPath'
         sh 'make'
         }
     }
     stage('quicly') {
-        dir('../quicly'){
+        dir('./quicly'){
         checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'SubmoduleOption', disableSubmodules: false, parentCredentials: true, recursiveSubmodules: true, reference: '', trackingSubmodules: false]], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '8607f52e-a446-45e9-b4d1-02bc8ef0ab8b', url: 'https://github.com/h2o/quicly.git']]])
         cmakeBuild 'InSearchPath'
         sh 'make'
         }
     }
     stage('ngtcp2') {
-        dir('../ngtcp2'){
+        dir('./ngtcp2'){
         checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'SubmoduleOption', disableSubmodules: false, parentCredentials: true, recursiveSubmodules: true, reference: '', trackingSubmodules: false]], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '8607f52e-a446-45e9-b4d1-02bc8ef0ab8b', url: 'https://github.com/ngtcp2/ngtcp2']]])
         sh 'autoreconf -i'
         sh './configure PKG_CONFIG_PATH=$PWD/../openssl/build/lib/pkgconfig LDFLAGS="-Wl,-rpath,$PWD/../openssl/build/lib,-L/opt/local/lib" CPPFLAGS="-I/opt/local/include"'
