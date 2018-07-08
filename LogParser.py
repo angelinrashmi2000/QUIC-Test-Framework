@@ -126,7 +126,7 @@ def parsequicly(implementation_name):
 			quicly_result["Version Negotiation"]=1
 
 def color_zero_red(val):
-    color = 'red' if val is 0 else 'green'
+    color = 'red' if val.find(">0<") is not -1 else 'green'
     return 'background-color: %s' % color
 
 def drawtable(implementation_name,result):
@@ -134,15 +134,20 @@ def drawtable(implementation_name,result):
 		'ngtcp2' : pd.Series(ngtcp2_result),
 		'quicly' : pd.Series(quicly_result)}
 	df = pd.DataFrame(d)
+	path = "../"+implementation_name
+	df['picoquic']= df['picoquic'].apply(lambda x: '<a href='+path+'/picoquic-client.log>{0}</a>'.format(x))
+	df['ngtcp2']= df['ngtcp2'].apply(lambda x: '<a href='+path+'/ngtcp2-client.log>{0}</a>'.format(x))
+	df['quicly']= df['quicly'].apply(lambda x: '<a href='+path+'/quicly-client.log>{0}</a>'.format(x))
 	styles = [ dict(selector="th", props=[("text-align", "center")]),dict(selector="", props=[("margin", "50px"),("display","inline-block")]) ]
-	temp = df.style.applymap(color_zero_red).set_caption(implementation_name+' as Server').set_properties(**{'border': '2px solid black'}).set_table_styles(styles).render()
-	#print(temp)	
+	temp = df.style.applymap(color_zero_red).set_caption(implementation_name+' as Server').set_properties(**{'border': '2px solid black'}).set_table_styles(styles).render()	
+	#print(temp)
 	result.write(temp)
 	#df.to_html('result.html')
 
 def mainloop(result):
 	number_of_implementations = 5
 	implementation_name =["picoquic","quicly","mvfst","winquic","ngx_quic"]
+	result.write("<h1 style='text-align:center;'>INTEROPERABILITY TEST MATRIX</h1>")
 	for i in range(0,number_of_implementations):
 		parsepicoquic(implementation_name[i])
 		parsengtcp2(implementation_name[i])
