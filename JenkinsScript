@@ -140,10 +140,10 @@ node('master') {
                         echo "Error"
                     }
                 }
-                dir('../ngtcp2'){
+                dir('../ngtcp2'){ 
                     try{
                     timeout(time: 10, unit: 'SECONDS') {
-                        sh './examples/client 127.0.0.1 4444 -d /logo.jpg &> ../quicly/ngtcp2-client.log'
+                        sh './examples/client 127.0.0.1 4444 &> ../quicly/ngtcp2-client.log'
                         sh 'cat ../quicly/ngtcp2-client.log'
                     }
                     }
@@ -189,7 +189,7 @@ node('master') {
             dir('../ngtcp2'){
                     try{
                     timeout(time: 10, unit: 'SECONDS') {
-                        sh './examples/client fb.mvfst.net 4433 -d ../picoquic/http09_index.html &> ../mvfst/ngtcp2-client.log'
+                        sh './examples/client fb.mvfst.net 4433 -d /99 &> ../mvfst/ngtcp2-client.log'
                         sh 'cat ../mvfst/ngtcp2-client.log'
                     }
                     }
@@ -207,7 +207,7 @@ node('master') {
             {
                 try{
                     timeout(time: 10, unit: 'SECONDS') {
-                        sh './cli -p /99 -v msquic.westus.cloudapp.azure.com 4433 &> ../winquic/quicly-client.log'
+                        sh './cli  -v msquic.westus.cloudapp.azure.com 4433 &> ../winquic/quicly-client.log'
                         sh 'cat ../winquic/quicly-client.log'
                     }
                 }
@@ -230,17 +230,17 @@ node('master') {
                 }
             }
             dir('../ngtcp2'){
-                    try{
+                try{
                     timeout(time: 10, unit: 'SECONDS') {
-                        sh './examples/client msquic.westus.cloudapp.azure.com 4433 -d ../picoquic/http09_index.html &> ../winquic/ngtcp2-client.log'
+                        sh './examples/client msquic.westus.cloudapp.azure.com 4433  &> ../winquic/ngtcp2-client.log'
                         sh 'cat ../winquic/ngtcp2-client.log'
                     }
-                    }
-                    catch(err)
-                    {
-                        echo "Error"
-                    }
                 }
+                catch(err)
+                {
+                    echo "Error"
+                }
+            }
         }
         stage('ngx_quic as Server')
         {
@@ -265,6 +265,18 @@ node('master') {
                     timeout(time: 10, unit: 'SECONDS') {
                         sh './picoquicdemo -l ../ngx_quic/picoquic-client.log  quic.tech 4433'
                         sh 'cat ../ngx_quic/picoquic-client.log'
+                    }
+                }
+                catch(err)
+                {
+                    echo "Error"
+                }
+            }
+            dir('../ngtcp2'){
+                try{
+                    timeout(time: 10, unit: 'SECONDS') {
+                        sh './examples/client msquic.westus.cloudapp.azure.com 4433 &> ../ngx_quic/ngtcp2-client.log'
+                        sh 'cat ../ngx_quic/ngtcp2-client.log'
                     }
                 }
                 catch(err)
