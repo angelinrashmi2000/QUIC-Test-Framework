@@ -6,6 +6,13 @@ node('master') {
     }
 
     stage ('picotls') {
+        dir('../openssl')
+        {
+            checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'CloneOption', noTags: false, reference: '', shallow: false]], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '8607f52e-a446-45e9-b4d1-02bc8ef0ab8b', url: 'https://github.com/openssl/openssl']]])
+            sh './config enable-tls1_3 --prefix=$PWD/build'
+            sh 'make'
+            sh 'make install_sw'
+        }
         dir('../picotls'){
             checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'SubmoduleOption', disableSubmodules: false, parentCredentials: true, recursiveSubmodules: true, reference: '', trackingSubmodules: false]], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '8607f52e-a446-45e9-b4d1-02bc8ef0ab8b', url: 'https://github.com/h2o/picotls.git']]])
             cmakeBuild 'InSearchPath'
@@ -27,13 +34,6 @@ node('master') {
         }
     }
     stage('ngtcp2') {
-        dir('../openssl')
-        {
-            checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'CloneOption', noTags: false, reference: '', shallow: false]], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '8607f52e-a446-45e9-b4d1-02bc8ef0ab8b', url: 'https://github.com/openssl/openssl']]])
-            sh './config enable-tls1_3 --prefix=$PWD/build'
-            sh 'make'
-            sh 'make install_sw'
-        }
         dir('../ngtcp2'){
         checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'SubmoduleOption', disableSubmodules: false, parentCredentials: true, recursiveSubmodules: true, reference: '', trackingSubmodules: false]], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '8607f52e-a446-45e9-b4d1-02bc8ef0ab8b', url: 'https://github.com/ngtcp2/ngtcp2']]])
         sh 'autoreconf -i'
