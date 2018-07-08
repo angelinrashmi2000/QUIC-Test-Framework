@@ -77,7 +77,7 @@ def get5col(line):
 		return "0x7e"
 	if "0x7d" in var[5]:
 		return "0x7d"
-	if "S0" in var[5]:
+	if "Short" in var[5]:
 		return "S0"
 
 def parsengtcp2(implementation_name):
