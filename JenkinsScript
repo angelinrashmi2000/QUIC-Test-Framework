@@ -286,5 +286,5 @@ node('master') {
             sh 'cat result.html'
         }
     }
-    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, includes: '**/*.log,**/*.html', keepAll: true, reportDir: './framework', reportFiles: 'report.html', reportName: 'InterOperability Report', reportTitles: 'InterOperability Matrix'])
+    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, includes: '**/*.log,**/*.html', keepAll: true, reportDir: './framework', reportFiles: 'result.html', reportName: 'InterOperability Report', reportTitles: 'InterOperability Matrix'])
 }
