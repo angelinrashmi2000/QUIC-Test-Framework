@@ -13,7 +13,7 @@ node('master') {
             sh 'make'
             sh 'make install_sw'
         }
-        dir('../picotls'){
+        dir('./picotls'){
             checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'SubmoduleOption', disableSubmodules: false, parentCredentials: true, recursiveSubmodules: true, reference: '', trackingSubmodules: false]], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '8607f52e-a446-45e9-b4d1-02bc8ef0ab8b', url: 'https://github.com/h2o/picotls.git']]])
             cmakeBuild 'InSearchPath'
             sh 'make'
@@ -43,7 +43,7 @@ node('master') {
     }
     stage('Test'){  
         stage('Picoquic as Server'){
-            dir('../picoquic') {
+            dir('./picoquic') {
                 sh './picoquicdemo -p 4444 &'
                 sh './picoquicdemo -l picoquic-client.log  localhost 4444'
                 sh 'cat picoquic-client.log'
@@ -76,7 +76,7 @@ node('master') {
             }
         }
         stage('ngtcp2 as Server'){
-            dir('../ngtcp2') {
+            dir('./ngtcp2') {
                 sh './examples/server 127.0.0.1 4444 ../picoquic/certs/key.pem ../picoquic/certs/cert.pem  &'
                 sh './examples/client 127.0.0.1 4444  &> ../ngtcp2/ngtcp2-client.log'
                 sh 'cat ../ngtcp2/ngtcp2-client.log'
@@ -110,7 +110,7 @@ node('master') {
         }
         stage('quicky as Server')
         {
-            dir('../quicly'){
+            dir('./quicly'){
                 sh './cli -c ../picoquic/certs/cert.pem -k ../picoquic/certs/key.pem -v 127.0.0.1 4444 &'
                 try{
                     timeout(time: 10, unit: 'SECONDS') {
