@@ -281,9 +281,7 @@ node('master') {
         }
     }
     stage('Log Analysis'){
-            sh 'pwd'
-        dir('../framework'){
-            sh 'pwd'
+        dir('./framework'){
             sh 'python3.5 LogParser.py'
             sh 'cat result.html'
         }
