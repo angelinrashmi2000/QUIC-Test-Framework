@@ -282,7 +282,7 @@ node('master') {
     }
     stage('Log Analysis'){
         dir('../framework'){
-            sh '/usr/local/Cellar/python/3.6.4_3/bin/python LogParser.py'
+            sh 'python3.5 LogParser.py'
             sh 'cat result.html'
         }
     }
