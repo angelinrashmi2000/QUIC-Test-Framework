@@ -6,9 +6,6 @@
 #    client_0RTT = 4
 #    client_close = 5
 import pandas as pd
-from IPython.display import HTML
-#from wkhtmltopdf import WKhtmlToPdf
-
 
 transition=[[0,1,1,0,1,0,0],[1,0,0,0,0,0,0],[0,0,1,1,0,0,0],[0,0,0,1,0,0,0],[0,1,0,0,1,0,0],[1,0,0,0,0,0,0],[0,0,0,0,0,0,0]] #currently the transition for Typ1 and type 0 is all zero.change it later
 dict_picoquic = {'Type: 2': 0, 'Type: 3': 1, 'Type: 4': 2, 'Type: 6': 3,'Type: 5':4,'Type: 1':5,'Type: 0' :6} #(initial, retry, handshake, 1rtt, 0RTT,version,error)#type 1 version negotation
